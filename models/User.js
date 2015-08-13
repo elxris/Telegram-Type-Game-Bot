@@ -40,13 +40,16 @@ userSchema.statics.findTelegramUser = function(req, res, next) {
 };
 
 userSchema.statics.incrementClicks = function(user, cb) {
-  user.update({$inc: {clicks: 1}}, function(err, doc) {
-    if (err) {
-      sendMessageError(user.userid);
-      return console.error(err);
+  var User = mongoose.model('User');
+  User.findOneAndUpdate({_id: user.id}, {$inc: {clicks: 1}},
+    function(err, doc) {
+      if (err) {
+        sendMessageError(user.userid);
+        return console.error(err);
+      }
+      cb(doc);
     }
-    cb(doc);
-  });
+  );
 };
 
 var User = mongoose.model('User', userSchema);
