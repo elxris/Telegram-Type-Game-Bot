@@ -64,7 +64,7 @@ module.exports = function(router) {
         console.log(user);
         if (req.user.clicks < 10) {
           sendStatusMessage();
-        } else if (req.users.clicks === 10) {
+        } else if (req.user.clicks === 10) {
           api.request('sendMessage', {
             chat_id: req.body.message.chat.id,
             text: 'Ahora recibirás tu /status de vez en cuando.',
