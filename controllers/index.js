@@ -23,13 +23,11 @@ module.exports = function(router) {
       return;
     }
     api.request('sendMessage', {
-      'chat_id': req.body.message.chat.id,
-      'text': req.body.message.text,
-      'reply_markup': {
-        'keyboard': JSON.stringify([['A', 'B'], ['C']]),
-        'one_time_keyboard': true,
-        'resize_keyboard': false
-      }
+      chat_id: req.body.message.chat.id,
+      text: req.body.message.text,
+      reply_markup: JSON.stringify({
+        keyboard: [['A', 'B'], ['C']]
+      })
     }, function(err, response) {
       if (err) {
         console.error(err);
