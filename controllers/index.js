@@ -18,8 +18,7 @@ module.exports = function(router) {
     }
     api.request('sendMessage', {
       'chat_id': req.body.message.chat.id,
-      'text': 'Holo :)',
-      'reply_to_message_id': req.body.message.message_id
+      'text': 'Holo :)'
     }, function(err, response) {
       if (err) {
         console.error(err);
