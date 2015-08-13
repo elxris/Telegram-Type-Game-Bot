@@ -14,7 +14,7 @@ module.exports = function(router) {
 
   router.post('/:token', function(req, res, next) {
     if (req.params.token !== req.app.kraken.get('TELEGRAM_TOKEN')) {
-      res.status(400).send('Bad Token');
+      return res.status(400).send('Bad Token');
     }
     res.sendStatus(200);
     next();
@@ -32,6 +32,7 @@ module.exports = function(router) {
       if (err) {
         console.error(err);
       }
+      console.log(response.text);
     });
   });
 };
