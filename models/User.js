@@ -18,8 +18,9 @@ var userSchema = mongoose.Schema({
 });
 
 userSchema.statics.findTelegramUser = function(req, res, next) {
+  var User = mongoose.model('User');
   var user = req.body.message.chat.id;
-  this.findOneAndUpdate({userid: user}, {$inc: {requests: 1}}, {upsert: true},
+  User.findOneAndUpdate({userid: user}, {$inc: {requests: 1}}, {upsert: true},
     function(err, doc) {
       if (err) {
         api.request('sendMessage', {
