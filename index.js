@@ -2,6 +2,7 @@
 
 var express = require('express');
 var kraken = require('kraken-js');
+var Telegram = require('./lib/telegram');
 
 var options;
 var app;
@@ -16,6 +17,7 @@ options = {
      * Add any additional config setup or overrides here. `config` is an initialized
      * `confit` (https://github.com/krakenjs/confit/) configuration object.
      */
+    var telegram = new Telegram(config.get('TELEGRAM_TOKEN'));
     next(null, config);
   }
 };

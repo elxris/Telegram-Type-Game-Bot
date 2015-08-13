@@ -1,17 +1,9 @@
 {
 
-    
-
-    
-
-    
-
     "specialization": {
     },
 
     "middleware": {
-
-        
 
         "static": {
             "module": {
