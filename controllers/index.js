@@ -32,6 +32,7 @@ module.exports = function(router) {
       if (err) {
         console.error(err);
       }
+      console.log(response.text);
     });
   });
 };
