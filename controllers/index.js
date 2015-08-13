@@ -26,7 +26,7 @@ module.exports = function(router) {
       'chat_id': req.body.message.chat.id,
       'text': req.body.message.text,
       'reply_markup': {
-        'keyboard': JSON.stringify([['Holi', 'Holo'], [':)']])
+        'keyboard': JSON.stringify([['A', 'B'], ['C']])
       }
     }, function(err, response) {
       if (err) {
