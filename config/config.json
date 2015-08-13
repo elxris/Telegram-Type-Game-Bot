@@ -13,10 +13,9 @@
 
         "appsec": {
           "module": {
-            "name": "lusca",
-            "arguments": {
+            "arguments": [{
               "csrf": false
-            }
+            }]
           }
         },
 
