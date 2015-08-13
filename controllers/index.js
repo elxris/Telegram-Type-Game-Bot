@@ -16,14 +16,22 @@ module.exports = function(router) {
     if (req.params.token !== req.app.kraken.get('TELEGRAM_TOKEN')) {
       res.status(400).send('Bad Token');
     }
+    res.sendStatus(200);
+    next();
+  }, function(req, res, next) {
+    if (!req.body.message.chat.text) {
+      return;
+    }
     api.request('sendMessage', {
       'chat_id': req.body.message.chat.id,
-      'text': 'Holo :)'
+      'text': req.body.message.chat.text,
+      'reply_markup': {
+        'keyboard': [['Holi', 'Holo'], [':)']]
+      }
     }, function(err, response) {
       if (err) {
         console.error(err);
       }
     });
-    res.sendStatus(200);
   });
 };
