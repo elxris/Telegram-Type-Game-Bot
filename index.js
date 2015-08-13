@@ -3,6 +3,7 @@
 var express = require('express');
 var kraken = require('kraken-js');
 var Telegram = require('./lib/telegram');
+var mongoose = require('mongoose');
 
 var options;
 var app;
@@ -19,6 +20,13 @@ options = {
      */
     var telegram = new Telegram(config.get('TELEGRAM_TOKEN'),
       config.get('PUBLIC_URL'));
+
+    mongoose.connect(config.get('MONGO_URL'));
+    var db = mongoose.connection;
+    db.on('error', console.error.bind(console, 'mongo connection error:'));
+    db.once('open', function(callback) {
+      console.log('mongo connection successful');
+    });
     next(null, config);
   }
 };
