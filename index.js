@@ -17,7 +17,8 @@ options = {
      * Add any additional config setup or overrides here. `config` is an initialized
      * `confit` (https://github.com/krakenjs/confit/) configuration object.
      */
-    var telegram = new Telegram(config.get('TELEGRAM_TOKEN'));
+    var telegram = new Telegram(config.get('TELEGRAM_TOKEN'),
+      config.get('PUCBLIC_URL'));
     next(null, config);
   }
 };
