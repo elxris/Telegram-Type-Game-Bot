@@ -1,4 +1,4 @@
 Telegram Type Game Bot
 ===========
 
-A Telegram Bot first test
+A Telegram 'Click' Game Bot at @@tygamebot
