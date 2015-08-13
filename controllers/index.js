@@ -45,7 +45,10 @@ module.exports = function(router) {
     var sendStatusMessage = function() {
       api.request('sendMessage', {
         chat_id: req.body.message.chat.id,
-        text: 'Haz hecho ' + numeral(req.use.clicks).format('0 a') + ' clicks!',
+        text:
+          'Haz hecho ' +
+          numeral(req.user.clicks).format('0 a') +
+          ' clicks!',
         reply_markup: JSON.stringify({
           keyboard: [['click']]
         })

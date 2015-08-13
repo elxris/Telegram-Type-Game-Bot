@@ -30,7 +30,6 @@ userSchema.statics.findTelegramUser = function(req, res, next) {
         return console.error(err);
       }
       req.user = doc;
-      console.log(doc.toObject());
       next();
     }
   );
