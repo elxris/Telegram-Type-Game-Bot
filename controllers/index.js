@@ -61,6 +61,7 @@ module.exports = function(router) {
 
       User.incrementClicks(req.user, function(user) {
         req.user = user;
+        console.log(user);
         if (req.user.clicks < 10) {
           sendStatusMessage();
         } else if (req.users.clicks === 10) {
