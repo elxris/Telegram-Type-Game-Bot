@@ -17,12 +17,14 @@ module.exports = function(router) {
       return res.status(400).send('Bad Token');
     }
     res.sendStatus(200);
-    if (!req.body.message.chat.text) {
+    next();
+  }, function(req, res, next) {
+    if (!req.body.message.text) {
       return;
     }
     api.request('sendMessage', {
       'chat_id': req.body.message.chat.id,
-      'text': req.body.message.chat.text,
+      'text': req.body.message.text,
       'reply_markup': {
         'keyboard': [['Holi', 'Holo'], [':)']]
       }
@@ -30,7 +32,6 @@ module.exports = function(router) {
       if (err) {
         console.error(err);
       }
-      console.log(response.text);
     });
   });
 };
