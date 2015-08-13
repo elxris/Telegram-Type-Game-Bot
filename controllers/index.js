@@ -12,7 +12,7 @@ module.exports = function(router) {
     res.send('ok');
   });
 
-  router.get('/:token', function(req, res, next) {
+  router.post('/:token', function(req, res, next) {
     if (req.params.token !== req.app.kraken.get('TELEGRAM_TOKEN')) {
       res.status(400).send('Bad Token');
     }
