@@ -20,6 +20,11 @@ module.exports = function(router) {
       'chat_id': req.body.message.chat.id,
       'text': 'Holo :)',
       'reply_to_message_id': req.body.message.message_id
+    }, function(err, response) {
+      if (err) {
+        console.error(err);
+      }
     });
+    res.sendStatus(200);
   });
 };
