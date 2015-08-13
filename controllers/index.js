@@ -17,8 +17,6 @@ module.exports = function(router) {
       return res.status(400).send('Bad Token');
     }
     res.sendStatus(200);
-    next();
-  }, function(req, res, next) {
     if (!req.body.message.chat.text) {
       return;
     }
