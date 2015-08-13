@@ -58,22 +58,25 @@ module.exports = function(router) {
     var command = req.body.message.text.split(' ');
     if (command[0].toLowerCase() === 'click') {
       var oldClicks = req.user.clicks;
-      req.user.clicks += 1;
-      if (req.user.clicks < 10) {
-        sendStatusMessage();
-      } else if (req.users.clicks === 10) {
-        api.request('sendMessage', {
-          chat_id: req.body.message.chat.id,
-          text: 'Ahora recibirás tu /status de vez en cuando.',
-          reply_markup: JSON.stringify({
-            keyboard: [['click']]
-          })
-        });
-      } else if (
-        Math.ceil(oldClicks / Math.E) < Math.ceil(req.user.clicks / Math.E)
-      ) {
-        sendStatusMessage();
-      }
+
+      User.incrementClicks(req.user, function(user) {
+        req.user = user;
+        if (req.user.clicks < 10) {
+          sendStatusMessage();
+        } else if (req.users.clicks === 10) {
+          api.request('sendMessage', {
+            chat_id: req.body.message.chat.id,
+            text: 'Ahora recibirás tu /status de vez en cuando.',
+            reply_markup: JSON.stringify({
+              keyboard: [['click']]
+            })
+          });
+        } else if (
+          Math.ceil(oldClicks / Math.E) < Math.ceil(req.user.clicks / Math.E)
+        ) {
+          sendStatusMessage();
+        }
+      });
     } else if (command[0].toLowerCase() === 'start') {
       api.request('sendMessage', {
         chat_id: req.body.message.chat.id,

@@ -17,22 +17,36 @@ var userSchema = mongoose.Schema({
   }
 });
 
+var sendMessageError = function(id) {
+  api.request('sendMessage', {
+    chat_id: id,
+    text: '(501) Ocurrió un error. Inténtalo mas tarde.'
+  });
+};
+
 userSchema.statics.findTelegramUser = function(req, res, next) {
   var User = mongoose.model('User');
   var user = req.body.message.chat.id;
   User.findOneAndUpdate({userid: user}, {$inc: {requests: 1}}, {upsert: true},
     function(err, doc) {
       if (err) {
-        api.request('sendMessage', {
-          chat_id: req.body.message.chat.id,
-          text: '(501) Ocurrió un error. Inténtalo mas tarde.'
-        });
+        sendMessageError(req.body.message.chat.id);
         return console.error(err);
       }
       req.user = doc;
       next();
     }
   );
+};
+
+userSchema.statics.incrementClicks = function(user, cb) {
+  user.update({$inc: {clicks: 1}}, function(err, doc) {
+    if (err) {
+      sendMessageError(user.userid);
+      return console.error(err);
+    }
+    cb(doc);
+  });
 };
 
 var User = mongoose.model('User', userSchema);
