@@ -3,11 +3,12 @@
   "version": "0.1.0",
   "description": "A Telegram Bot first test",
   "author": "elxris",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "grunt test",
     "build": "grunt build",
-    "all": "npm run build && npm run test"
+    "all": "npm run build && npm run test",
+    "start": "node server.js"
   },
   "dependencies": {
     "kraken-js": "^1.0.3",
