@@ -27,7 +27,8 @@ module.exports = function(router) {
       'text': req.body.message.text,
       'reply_markup': {
         'keyboard': JSON.stringify([['A', 'B'], ['C']]),
-        'one_time_keyboard': true
+        'one_time_keyboard': true,
+        'resize_keyboard': false
       }
     }, function(err, response) {
       if (err) {
