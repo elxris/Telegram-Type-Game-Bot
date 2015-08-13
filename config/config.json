@@ -11,6 +11,15 @@
             }
         },
 
+        "appsec": {
+          "module": {
+            "name": "lusca",
+            "arguments": {
+              "csrf": false
+            }
+          }
+        },
+
         "router": {
             "module": {
                 "arguments": [{ "directory": "path:./controllers" }]
