@@ -18,7 +18,7 @@ options = {
      * `confit` (https://github.com/krakenjs/confit/) configuration object.
      */
     var telegram = new Telegram(config.get('TELEGRAM_TOKEN'),
-      config.get('PUCBLIC_URL'));
+      config.get('PUBLIC_URL'));
     next(null, config);
   }
 };
