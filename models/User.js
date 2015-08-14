@@ -55,7 +55,7 @@ userSchema.statics.findTelegramUser = function(req, res, next) {
   User.findOneAndUpdate(
     {userid: user},
     {$inc: {requests: 1}, $set: {lastRequest: Date.now()}},
-    {upsert: true},
+    {upsert: true, new: true},
     function(err, doc) {
       if (err) {
         sendMessageError(req.body.message.chat.id);
