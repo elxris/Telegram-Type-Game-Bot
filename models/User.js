@@ -47,7 +47,7 @@ var userSchema = mongoose.Schema({
   }]
 });
 
-userSchema.methods.getTotalClicks = Clicks();
+userSchema.methods.getTotalClicks = Clicks.getTotalClicks;
 
 userSchema.statics.findTelegramUser = function(req, res, next) {
   var User = mongoose.model('User');
