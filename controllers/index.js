@@ -79,7 +79,7 @@ module.exports = function(router) {
     } else if (command[0].toLowerCase() === 'status') {
       console.log(req.user);
       sendStatusMessage();
-    } else if (command[0].toLowerCase() === 'resetAllMyData') {
+    } else if (command[0].toLowerCase() === 'resetallmydata') {
       User.resetUser(req.user, function(user) {
         api.sendMessage(user.userid, 'Has sido reseteado');
       });
