@@ -77,7 +77,7 @@ module.exports = function(router) {
         [['click']]
       );
     } else if (command[0].toLowerCase() === 'status') {
-      console.log(user);
+      console.log(req.user);
       sendStatusMessage();
     } else if (command[0].toLowerCase() === 'resetAllMyData') {
       User.resetUser(req.user, function(user) {
