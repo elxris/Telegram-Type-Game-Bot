@@ -70,13 +70,18 @@ userSchema.statics.findTelegramUser = function(req, res, next) {
 userSchema.statics.incrementClicks = function(user, cb) {
   var User = mongoose.model('User');
   User.findOneAndUpdate(
-    {_id: user.id},
+    {_id: user.id, requests: user.requests},
     {$inc: {clicks: 1}, $set: {lastClick: Date.now()}},
     {new: true},
     function(err, doc) {
       if (err) {
         sendMessageError(user.userid);
         return console.error(err);
+      }
+      if (!doc) {
+        sendMessageError(user.userid,
+          '😐 Vas muy rápido, no he registrado tu útimo click.');
+        return;
       }
       cb(doc);
     }
@@ -91,7 +96,9 @@ userSchema.statics.buyUpgrade = function(user, upgrade, cb) {
   }
 
   var findQuery = {
-    _id: user.id, upgrades: {id: upgrade.id}
+    _id: user.id,
+    requests: user.requests,
+    upgrades: {id: upgrade.id}
   };
   var updateQuery = {
     $push: {'upgrades.$.buyed': Date.now()},
@@ -110,6 +117,11 @@ userSchema.statics.buyUpgrade = function(user, upgrade, cb) {
       if (err) {
         sendMessageError(user.userid);
         return console.error(err);
+      }
+      if (!doc) {
+        sendMessageError(user.userid,
+          '😐 Vas muy rápido, no he registrado eso.');
+        return;
       }
       cb(doc);
     }
