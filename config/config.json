@@ -6,6 +6,7 @@
     "middleware": {
 
         "static": {
+            "enabled": false,
             "module": {
                 "arguments": [ "path:./.build" ]
             }
@@ -18,7 +19,15 @@
             }]
           }
         },
-
+        "cookieParser": {
+          "enabled": false
+        },
+        "session": {
+          "enabled": false
+        },
+        "compress": {
+          "enabled": false
+        },
         "router": {
             "module": {
                 "arguments": [{ "directory": "path:./controllers" }]
