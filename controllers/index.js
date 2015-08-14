@@ -45,7 +45,7 @@ module.exports = function(router) {
     var sendStatusMessage = function() {
       api.sendMessage(
         req.body.message.chat.id,
-        'Haz hecho ' + numeral(req.user.clicks).format('0 a') + ' clicks!',
+        'Haz hecho ' + numeral(req.user.clicks).format('0,0') + ' clicks!',
         [['click']]
       );
     };
@@ -65,7 +65,7 @@ module.exports = function(router) {
             [['click']]
           );
         } else if (
-          Math.ceil(Math.log(oldClicks)) < Math.ceil(Math.log(req.user.clicks))
+          Math.ceil(Math.sqrt(oldClicks)) < Math.ceil(Math.sqrt(user))
         ) {
           sendStatusMessage();
         }
