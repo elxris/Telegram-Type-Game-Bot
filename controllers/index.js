@@ -43,16 +43,11 @@ module.exports = function(router) {
     }
 
     var sendStatusMessage = function() {
-      api.request('sendMessage', {
-        chat_id: req.body.message.chat.id,
-        text:
-          'Haz hecho ' +
-          numeral(req.user.clicks).format('0 a') +
-          ' clicks!',
-        reply_markup: JSON.stringify({
-          keyboard: [['click']]
-        })
-      });
+      api.sendMessage(
+        req.body.message.chat.id,
+        'Haz hecho ' + numeral(req.user.clicks).format('0 a') + ' clicks!',
+        [['click']]
+      );
     };
 
     var command = req.body.message.text.split(' ');
@@ -65,13 +60,11 @@ module.exports = function(router) {
         if (req.user.clicks < 10) {
           sendStatusMessage();
         } else if (req.user.clicks === 10) {
-          api.request('sendMessage', {
-            chat_id: req.body.message.chat.id,
-            text: 'Ahora recibirás tu /status de vez en cuando.',
-            reply_markup: JSON.stringify({
-              keyboard: [['click']]
-            })
-          });
+          api.sendMessage(
+            req.body.message.chat.id,
+            'Ahora recibirás tu /status de vez en cuando.',
+            [['click']]
+          );
         } else if (
           Math.ceil(oldClicks / Math.E) < Math.ceil(req.user.clicks / Math.E)
         ) {
@@ -79,15 +72,17 @@ module.exports = function(router) {
         }
       });
     } else if (command[0].toLowerCase() === 'start') {
-      api.request('sendMessage', {
-        chat_id: req.body.message.chat.id,
-        text: 'Bienvenido, escribe \'click\' para dar un click.',
-        reply_markup: JSON.stringify({
-          keyboard: [['click']]
-        })
-      });
+      api.sendMessage(
+        req.body.message.chat.id,
+        'Bienvenido, escribe \'click\' para dar un click.',
+        [['click']]
+      );
     } else if (command[0].toLowerCase() === 'status') {
       sendStatusMessage();
+    } else if (command[0].toLowerCase() === 'resetAllMyData') {
+      User.resetUser(req.user, function(user) {
+        api.sendMessage(user.userid, 'Has sido reseteado');
+      });
     } else {
       api.request('sendMessage', {
         chat_id: req.body.message.chat.id,

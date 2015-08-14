@@ -52,6 +52,19 @@ userSchema.statics.incrementClicks = function(user, cb) {
   );
 };
 
+userSchema.statics.resetUser = function(user, cb) {
+  var User = mongoose.model('User');
+  User.findOneAndUpdate({_id: user.id}, {$set: {clicks: 0}},
+    function(err, doc) {
+      if (err) {
+        sendMessageError(user.userid);
+        return console.error(err);
+      }
+      cb(doc);
+    }
+  );
+};
+
 var User = mongoose.model('User', userSchema);
 
 module.exports = User;
