@@ -56,7 +56,6 @@ module.exports = function(router) {
 
       User.incrementClicks(req.user, function(user) {
         req.user = user;
-        console.log(user);
         if (req.user.clicks < 10) {
           sendStatusMessage();
         } else if (req.user.clicks === 10) {
@@ -78,6 +77,7 @@ module.exports = function(router) {
         [['click']]
       );
     } else if (command[0].toLowerCase() === 'status') {
+      console.log(user);
       sendStatusMessage();
     } else if (command[0].toLowerCase() === 'resetAllMyData') {
       User.resetUser(req.user, function(user) {
