@@ -65,7 +65,7 @@ module.exports = function(router) {
             [['click']]
           );
         } else if (
-          Math.ceil(Math.sqrt(oldClicks)) < Math.ceil(Math.sqrt(user))
+          Math.ceil(Math.sqrt(oldClicks)) < Math.ceil(Math.sqrt(user.clicks))
         ) {
           sendStatusMessage();
         }
