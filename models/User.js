@@ -41,7 +41,7 @@ userSchema.statics.findTelegramUser = function(req, res, next) {
 
 userSchema.statics.incrementClicks = function(user, cb) {
   var User = mongoose.model('User');
-  User.findOneAndUpdate({_id: user.id}, {$inc: {clicks: 1}},
+  User.findOneAndUpdate({_id: user.id}, {$inc: {clicks: 1}}, {new: true},
     function(err, doc) {
       if (err) {
         sendMessageError(user.userid);
@@ -54,7 +54,7 @@ userSchema.statics.incrementClicks = function(user, cb) {
 
 userSchema.statics.resetUser = function(user, cb) {
   var User = mongoose.model('User');
-  User.findOneAndUpdate({_id: user.id}, {$set: {clicks: 0}},
+  User.findOneAndUpdate({_id: user.id}, {$set: {clicks: 0}}, {new: true},
     function(err, doc) {
       if (err) {
         sendMessageError(user.userid);
