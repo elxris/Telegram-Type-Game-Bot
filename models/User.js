@@ -101,7 +101,10 @@ userSchema.statics.incrementClicks = function(user, cb) {
     );
   }, 1000);
 
-  memCache[user.userid];
+  memCache[user.userid] = cache;
+  var userClone = user.toObject();
+  user.clicks += cache.clicks;
+  cb(userClone);
 };
 
 userSchema.statics.buyUpgrade = function(user, upgrade, cb) {
