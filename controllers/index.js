@@ -45,8 +45,8 @@ module.exports = function(router) {
     req.body.message.text = req.body.message.text.replace(/( ){2}/g, ' ');
 
     req.sendMessage = function(message) {
-      if (!(this.body && this.user)) {
-        return console.error('sendMessage Error: No hay req.user');
+      if (!this.body) {
+        return console.error('sendMessage Error: No hay usuario');
       }
       if (!message) {
         return console.error('sendMessage Error: No hay mensaje que enviar');
