@@ -79,11 +79,11 @@ userSchema.statics.incrementClicks = function(user, cb) {
     {new: true},
     function(err, doc) {
       if (err) {
-        sendMessageError(user.userid);
+        sendMessageError(user);
         return console.error(err);
       }
       if (!doc) {
-        sendMessageError(user.userid,
+        sendMessageError(user,
           '😐 Ocurrió un error, no he registrado tus útimos clicks.');
         return;
       }
