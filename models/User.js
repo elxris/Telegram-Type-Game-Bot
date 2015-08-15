@@ -7,6 +7,8 @@ var Clicks    = require('../lib/clicks');
 var _         = require('lodash');
 var api       = new Telegram();
 
+var memCache  = {};
+
 var sendMessageError = function(id, message) {
   api.request('sendMessage', {
     chat_id: id,
@@ -68,24 +70,36 @@ userSchema.statics.findTelegramUser = function(req, res, next) {
 };
 
 userSchema.statics.incrementClicks = function(user, cb) {
-  var User = mongoose.model('User');
-  User.findOneAndUpdate(
-    {_id: user.id, requests: user.requests},
-    {$inc: {clicks: 1}, $set: {lastClick: Date.now()}},
-    {new: true},
-    function(err, doc) {
-      if (err) {
-        sendMessageError(user.userid);
-        return console.error(err);
+  var cache = memCache[user.userid] || {};
+
+  if (cache.timeout) {
+    clearTimeout(cache.clearTimeout);
+  }
+
+  cache.clicks = (cache.clicks || 0) + 1;
+  cache.setTimeout(function() {
+    delete cache.timeout;
+    var User = mongoose.model('User');
+    User.findOneAndUpdate(
+      {_id: user.id, clicks: user.clicks},
+      {$inc: {clicks: cache.clicks}, $set: {lastClick: Date.now()}},
+      {new: true},
+      function(err, doc) {
+        if (err) {
+          sendMessageError(user.userid);
+          return console.error(err);
+        }
+        if (!doc) {
+          sendMessageError(user.userid,
+            '😐 Ocurrió un error, no he registrado tus útimos clicks.');
+          return;
+        }
+        cb(doc);
       }
-      if (!doc) {
-        sendMessageError(user.userid,
-          '😐 Vas muy rápido, no he registrado tu útimo click.');
-        return;
-      }
-      cb(doc);
-    }
-  );
+    );
+  }, 5000);
+
+  memCache[user.userid];
 };
 
 userSchema.statics.buyUpgrade = function(user, upgrade, cb) {
