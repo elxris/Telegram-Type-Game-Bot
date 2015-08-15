@@ -77,14 +77,15 @@ userSchema.statics.incrementClicks = function(user, cb) {
   }
 
   cache.clicks = (cache.clicks || 0) + 1;
-  cache.setTimeout(function() {
-    delete cache.timeout;
+  cache.timeout = setTimeout(function() {
     var User = mongoose.model('User');
     User.findOneAndUpdate(
       {_id: user.id, clicks: user.clicks},
       {$inc: {clicks: cache.clicks}, $set: {lastClick: Date.now()}},
       {new: true},
       function(err, doc) {
+        delete cache.timeout;
+        delete cache.clicks;
         if (err) {
           sendMessageError(user.userid);
           return console.error(err);
@@ -97,7 +98,7 @@ userSchema.statics.incrementClicks = function(user, cb) {
         cb(doc);
       }
     );
-  }, 5000);
+  }, 1000);
 
   memCache[user.userid];
 };
