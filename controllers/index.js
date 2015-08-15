@@ -68,7 +68,7 @@ module.exports = function(router) {
     req.commands = req.body.message.text.split(' ');
     req.command = (req.commands[0] || '').toLowerCase();
     req.isCommand = function(match) {
-      return (new RegExp(match, 'i')).test(req.command);
+      return (new RegExp('^' + match + '$', 'i')).test(req.command);
     };
 
     if (req.isCommand('click')) {
