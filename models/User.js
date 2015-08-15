@@ -17,7 +17,9 @@ var sendMessageError = function(id, message) {
 var userSchema = mongoose.Schema({
   userid: {
     type: Number,
-    required: true
+    required: true,
+    index: true,
+    unique: true
   },
   requests: {
     type: Number,
@@ -30,7 +32,6 @@ var userSchema = mongoose.Schema({
   clicks: {
     type: Number,
     default: 0,
-    index: true
   },
   lastClick: {
     type: Number,
