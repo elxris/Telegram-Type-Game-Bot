@@ -35,29 +35,45 @@ module.exports = function(router) {
       });
     }
     next();
-  }, User.findTelegramUser, function(req, res, next) {
+  }, function(req, res, next) {
     // Remove commands
 
     if (req.body.message.text[0] === '/') {
       req.body.message.text = req.body.message.text.substr(1);
     }
+    // Remueve todos los espacios dobles
+    req.body.message.text = req.body.message.text.replace(/( ){2}/g, ' ');
 
-    var sendStatusMessage = function() {
+    req.sendMessage = function(message) {
+      if (!(this.body && this.user)) {
+        return console.error('sendMessage Error: No hay req.user');
+      }
+      if (!message) {
+        return console.error('sendMessage Error: No hay mensaje que enviar');
+      }
       api.sendMessage(
-        req.body.message.chat.id,
-        'Haz hecho ' + numeral(req.user.clicks).format('0,0') + ' clicks!',
+        this.body.message.chat.id,
+        message,
         [['click']]
       );
     };
+    req.sendStatusMessage = function() {
+      this.sendMessage(
+        'Haz hecho ' + numeral(this.user.clicks).format('0,0') + ' clicks!'
+      );
+    };
 
-    var command = req.body.message.text.split(' ');
-    if (command[0].toLowerCase() === 'click') {
-      var oldClicks = req.user.clicks;
+    req.commands = req.body.message.text.split(' ');
+    req.command = (req.commands[0] || '').toLowerCase();
+    req.isCommand = function(match) {
+      return (new RegExp(match, 'i')).test(req.command);
+    };
 
-      User.incrementClicks(req.user, function(user) {
+    if (req.isCommand('click')) {
+      User.incrementClicks(req.body.message.chat.id, function(user) {
         req.user = user;
         if (req.user.clicks < 10) {
-          sendStatusMessage();
+          req.sendStatusMessage();
         } else if (req.user.clicks === 10) {
           api.sendMessage(
             req.body.message.chat.id,
@@ -65,28 +81,35 @@ module.exports = function(router) {
             [['click']]
           );
         } else if (
-          Math.ceil(Math.sqrt(oldClicks)) < Math.ceil(Math.sqrt(user.clicks))
+          Math.ceil(Math.sqrt(user.clicks - 1)) <
+            Math.ceil(Math.sqrt(user.clicks))
         ) {
-          sendStatusMessage();
+          req.endStatusMessage();
         }
       });
-    } else if (command[0].toLowerCase() === 'start') {
-      api.sendMessage(
-        req.body.message.chat.id,
-        'Bienvenido, escribe \'click\' para dar un click.',
-        [['click']]
+    } else if (req.isCommand('start')) {
+      req.sendMessage.sendMessage(
+        'Bienvenido, escribe \'click\' para dar un click.'
       );
-    } else if (command[0].toLowerCase() === 'status') {
+    } else if (req.isCommand('reset')) {
+      req.sendMessage.sendMessage(
+        'PELIGRO\nEsta acción borrará tu progreso, pero aumentará tu ' +
+        'multiplicador.\nSi estás seguro usa /resetallmydata'
+      );
+    // Sólo pasa al siguiente middleware si necesita datos de la db.
+    } else if (req.isCommand('status') || req.isCommand('resetallmydata')) {
+      next();
+    } else {
+      req.sendMessage('No reconozco ese comando, inténta de nuevo.');
+    }
+
+  }, User.findTelegramUser, function(req, res, next) {
+    if (req.isCommand('status')) {
       console.log(req.user);
-      sendStatusMessage();
-    } else if (command[0].toLowerCase() === 'resetallmydata') {
+      req.sendStatusMessage();
+    } else if (req.isCommand('resetallmydata')) {
       User.resetUser(req.user, function(user) {
         api.sendMessage(user.userid, 'Has sido reseteado');
-      });
-    } else {
-      api.request('sendMessage', {
-        chat_id: req.body.message.chat.id,
-        text: 'No reconozco ese comando, inténta de nuevo.'
       });
     }
   });
