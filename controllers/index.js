@@ -21,6 +21,27 @@ module.exports = function(router) {
     res.sendStatus(200);
     next();
   }, function(req, res, next) {
+
+    req.sendMessage = function(message) {
+      if (!this.body) {
+        return console.error('sendMessage Error: No hay usuario');
+      }
+      if (!message) {
+        return console.error('sendMessage Error: No hay mensaje que enviar');
+      }
+      api.sendMessage(
+        this.body.message.chat.id,
+        message,
+        [['click']]
+      );
+    };
+
+    req.sendStatusMessage = function() {
+      this.sendMessage(
+        'Haz hecho ' + numeral(this.user.clicks).format('0,0') + ' clicks!'
+      );
+    };
+
     if (!req.body.message.text) {
       api.request('sendMessage', {
         chat_id: req.body.message.chat.id,
@@ -36,32 +57,13 @@ module.exports = function(router) {
     }
     next();
   }, function(req, res, next) {
-    // Remove commands
 
+    // Remove commands
     if (req.body.message.text[0] === '/') {
       req.body.message.text = req.body.message.text.substr(1);
     }
     // Remueve todos los espacios dobles
     req.body.message.text = req.body.message.text.replace(/( ){2}/g, ' ');
-
-    req.sendMessage = function(message) {
-      if (!this.body) {
-        return console.error('sendMessage Error: No hay usuario');
-      }
-      if (!message) {
-        return console.error('sendMessage Error: No hay mensaje que enviar');
-      }
-      api.sendMessage(
-        this.body.message.chat.id,
-        message,
-        [['click']]
-      );
-    };
-    req.sendStatusMessage = function() {
-      this.sendMessage(
-        'Haz hecho ' + numeral(this.user.clicks).format('0,0') + ' clicks!'
-      );
-    };
 
     req.commands = req.body.message.text.split(' ');
     req.command = (req.commands[0] || '').toLowerCase();
@@ -75,24 +77,22 @@ module.exports = function(router) {
         if (req.user.clicks < 10) {
           req.sendStatusMessage();
         } else if (req.user.clicks === 10) {
-          api.sendMessage(
-            req.body.message.chat.id,
-            'Ahora recibirás tu /status de vez en cuando.',
-            [['click']]
+          req.sendMessage(
+            'Ahora recibirás tu /status de vez en cuando.'
           );
         } else if (
           Math.ceil(Math.sqrt(user.clicks - 1)) <
             Math.ceil(Math.sqrt(user.clicks))
         ) {
-          req.endStatusMessage();
+          req.sendStatusMessage();
         }
       });
     } else if (req.isCommand('start')) {
-      req.sendMessage.sendMessage(
+      req.sendMessage(
         'Bienvenido, escribe \'click\' para dar un click.'
       );
     } else if (req.isCommand('reset')) {
-      req.sendMessage.sendMessage(
+      req.sendMessage(
         'PELIGRO\nEsta acción borrará tu progreso, pero aumentará tu ' +
         'multiplicador.\nSi estás seguro usa /resetallmydata'
       );
@@ -109,7 +109,7 @@ module.exports = function(router) {
       req.sendStatusMessage();
     } else if (req.isCommand('resetallmydata')) {
       User.resetUser(req.user, function(user) {
-        api.sendMessage(user.userid, 'Has sido reseteado');
+        req.sendMessage('Has sido reseteado');
       });
     }
   });
