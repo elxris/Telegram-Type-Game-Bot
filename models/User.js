@@ -82,28 +82,26 @@ userSchema.statics.incrementClicks = function incrementClicks(user, cb, count) {
     },
     {new: true},
     function(err, doc) {
-      if (err) {
-        console.error(err);
-        return cb(err, doc);
-      }
+      if (err) {console.error(err); return cb(err, doc);}
+
       if (!doc) {
         if (count >= INTENTS) {
           err = new (Errors.DBUpdateError)('Demasiados intentos.');
           console.error(err);
           return cb(err, doc);
         }
+
         setTimeout(function() {
           User.findOne(
             {userid: user.userid},
             function(err, doc) {
-              if (err) {
-                console.error(err);
-                return cb(err, doc);
-              }
+              if (err) {console.error(err); return cb(err, doc);}
+
               return incrementClicks(doc, cb, ++count);
             }
           );
         }, 250 * count + Math.random() * 250);
+        return;
       }
       cb(err, doc);
     }
@@ -139,10 +137,8 @@ userSchema.statics.buyUpgrade = function buyUpgrade(user, upgrade, cb, count) {
 
   User.findOneAndUpdate(findQuery, updateQuery, {new: true},
     function(err, doc) {
-      if (err) {
-        console.error(err);
-        return cb(err, doc);
-      }
+      if (err) {console.error(err); return cb(err, doc);}
+
       if (!doc) {
         if (count >= INTENTS) {
           return cb(new (Errors.DBUpdateError)('Demasiados intentos.'));
@@ -151,14 +147,13 @@ userSchema.statics.buyUpgrade = function buyUpgrade(user, upgrade, cb, count) {
           User.findOne(
             {userid: user.userid},
             function(err, doc) {
-              if (err) {
-                console.error(err);
-                return cb(err, doc);
-              }
+              if (err) {console.error(err); return cb(err, doc);}
+
               buyUpgrade(user, upgrade, cb, ++count);
             }
           );
         }, 250 * count + Math.random() * 250);
+        return;
       }
       cb(doc);
     }
@@ -170,9 +165,9 @@ userSchema.statics.resetUser = function(user, cb) {
   // Todo, add score before reset.
   User.findOneAndUpdate({userid: user.userid}, {$set: {clicks: 0}}, {new: true},
     function(err, doc) {
-      if (err) {
-        console.error(err);
-      }
+      if (err) {console.error(err);}
+
+      // If any error, better be controlled by router, only
       cb(err, doc);
     }
   );

@@ -110,9 +110,8 @@ module.exports = function(router) {
 
     if (req.isCommand('click')) {
       User.incrementClicks(req.user, function(err, user) {
-        if (err) {
-          return next(err);
-        }
+        if (err) {return next(err);}
+
         if (req.user.clicks < 10) {
           req.sendStatusMessage();
         } else if (req.user.clicks === 10) {
@@ -130,7 +129,8 @@ module.exports = function(router) {
       console.log(req.user);
       req.sendStatusMessage();
     } else if (req.isCommand('resetallmydata')) {
-      User.resetUser(req.user, function(user) {
+      User.resetUser(req.user, function(err, user) {
+        if (err) {return next(err);}
         req.sendMessage('Has sido reseteado');
       });
     }
