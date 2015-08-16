@@ -77,8 +77,8 @@ userSchema.statics.incrementClicks = function incrementClicks(user, cb, count) {
   User.findOneAndUpdate(
     {userid: user.userid, requests: user.requests},
     {
-      $inc: {clicks: 1, requests: 1},
-      $set: {lastClick: Date.now(), lastRequest: Date.now()}
+      $inc: {clicks: 1},
+      $set: {lastClick: Date.now()}
     },
     {new: true},
     function(err, doc) {
