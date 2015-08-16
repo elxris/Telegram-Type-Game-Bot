@@ -88,7 +88,9 @@ userSchema.statics.incrementClicks = function incrementClicks(user, cb, count) {
       }
       if (!doc) {
         if (count >= INTENTS) {
-          return cb(new (Errors.DBUpdateError)('Demasiados intentos.'));
+          err = new (Errors.DBUpdateError)('Demasiados intentos.');
+          console.error(err);
+          return cb(err, doc);
         }
         setTimeout(function() {
           User.findOne(

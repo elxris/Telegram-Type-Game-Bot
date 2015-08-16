@@ -110,6 +110,9 @@ module.exports = function(router) {
 
     if (req.isCommand('click')) {
       User.incrementClicks(req.user, function(err, user) {
+        if (err) {
+          return next(err);
+        }
         if (req.user.clicks < 10) {
           req.sendStatusMessage();
         } else if (req.user.clicks === 10) {
@@ -134,8 +137,8 @@ module.exports = function(router) {
 
   }, function(err, req, res, next) {
     console.error(err);
-    if (err instanceof DBUpdateError) {
-      // ToDo
+    if (err instanceof UserStatusError) {
+      req.sendMessage(err.message);
     }
     if (req.sendMessage) {
       req.sendMessage('Ocurrió un error en el servidor, intenta de nuevo.');
