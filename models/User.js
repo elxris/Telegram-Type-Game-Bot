@@ -167,7 +167,7 @@ userSchema.statics.resetUser = function(user, cb) {
     function(err, doc) {
       if (err) {console.error(err);}
 
-      // If any error, better be controlled by router, only
+      // If any error, better be controlled by router
       cb(err, doc);
     }
   );

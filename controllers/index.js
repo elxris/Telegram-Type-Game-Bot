@@ -112,9 +112,10 @@ module.exports = function(router) {
       User.incrementClicks(req.user, function(err, user) {
         if (err) {return next(err);}
 
-        if (req.user.clicks < 10) {
+        req.user = user;
+        if (user.clicks < 10) {
           req.sendStatusMessage();
-        } else if (req.user.clicks === 10) {
+        } else if (user.clicks === 10) {
           req.sendMessage(
             'Ahora recibirás tu /status de vez en cuando.'
           );
