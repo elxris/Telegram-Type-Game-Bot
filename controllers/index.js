@@ -70,9 +70,14 @@ module.exports = function(router) {
     req.commands = req.body.message.text.split(' ');
     req.command = (req.commands[0] || '').toLowerCase();
     req.isCommand = function(arg) {
-      return _.some(arg, function(match) {
+      var isCommand = function(match) {
         return (new RegExp('^' + match + '$', 'i')).test(req.command);
-      });
+      };
+      if (_.isArray(arg)) {
+        return isCommand(arg);
+      } else {
+        return _.some(arg, isCommand);
+      }
     };
 
     next();
