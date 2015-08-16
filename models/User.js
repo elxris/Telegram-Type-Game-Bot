@@ -1,19 +1,19 @@
 'use strict';
 //jscs:disable requireCamelCaseOrUpperCaseIdentifiers
 
-var mongoose  = require('mongoose');
-var Telegram  = require('../lib/telegram');
-var Clicks    = require('../lib/clicks');
-var _         = require('lodash');
-var api       = new Telegram();
+// Requires
+var mongoose          = require('mongoose');
+var Telegram          = require('../lib/telegram');
+var Clicks            = require('../lib/clicks');
+var Errors            = require('../lib/errors');
+var DBUpdateError     = Errors.DBUpdateError;
+var UserStatusError   = Errors.UserStatusError;
+var _                 = require('lodash');
 
-var sendMessageError = function(id, message) {
-  api.request('sendMessage', {
-    chat_id: id,
-    text: message || '(501) Ocurrió un error. Inténtalo mas tarde.'
-  });
-};
+// Constants
+var INTENTS           = 10;
 
+// User schema
 var userSchema = mongoose.Schema({
   userid: {
     type: Number,
@@ -50,6 +50,11 @@ var userSchema = mongoose.Schema({
 
 userSchema.methods.getTotalClicks = Clicks.getTotalClicks;
 
+/*
+++ express middleware
+**  Busca un usuario en la base de datos, o inserta un registro nuevo,
+**  y lo asigna a req.user
+*/
 userSchema.statics.findTelegramUser = function(req, res, next) {
   var User = mongoose.model('User');
   var user = req.body.message.chat.id;
@@ -58,20 +63,19 @@ userSchema.statics.findTelegramUser = function(req, res, next) {
     {$inc: {requests: 1}, $set: {lastRequest: Date.now()}},
     {upsert: true, new: true},
     function(err, doc) {
-      if (err) {
-        sendMessageError(req.body.message.chat.id);
-        return console.error(err);
-      }
       req.user = doc;
-      next();
+      next(err); // If any error, handled on router.
     }
   );
 };
 
-userSchema.statics.incrementClicks = function(user, cb) {
+userSchema.statics.incrementClicks = function incrementClicks(user, cb, count) {
+  if (!count) {
+    count = 0;
+  }
   var User = mongoose.model('User');
   User.findOneAndUpdate(
-    {userid: user},
+    {userid: user.userid, requests: user.requests},
     {
       $inc: {clicks: 1, requests: 1},
       $set: {lastClick: Date.now(), lastRequest: Date.now()}
@@ -79,24 +83,39 @@ userSchema.statics.incrementClicks = function(user, cb) {
     {new: true},
     function(err, doc) {
       if (err) {
-        sendMessageError(user);
-        return console.error(err);
+        console.error(err);
+        return cb(err, doc);
       }
       if (!doc) {
-        sendMessageError(user,
-          '😐 Ocurrió un error, no he registrado tus útimos clicks.');
-        return;
+        if (count >= INTENTS) {
+          return cb(new (Errors.DBUpdateError)('Demasiados intentos.'));
+        }
+        setTimeout(function() {
+          User.findOne(
+            {userid: user.userid},
+            function(err, doc) {
+              if (err) {
+                console.error(err);
+                return cb(err, doc);
+              }
+              return incrementClicks(doc, cb, ++count);
+            }
+          );
+        }, 250 * count + Math.random() * 250);
       }
-      cb(doc);
+      cb(err, doc);
     }
   );
 };
 
-userSchema.statics.buyUpgrade = function(user, upgrade, cb) {
+userSchema.statics.buyUpgrade = function buyUpgrade(user, upgrade, cb, count) {
+  if (!count) {
+    count = 0;
+  }
+
   var User = mongoose.model('User');
   if (user.getTotalClicks() < upgrade.getCost(user)) {
-    return sendMessageError(user.userid,
-      'No tienes suficientes clicks para comprarlo.');
+    cb(new UserStatusError('No tienes suficientes clicks para vender.'), user);
   }
 
   var findQuery = {
@@ -119,13 +138,25 @@ userSchema.statics.buyUpgrade = function(user, upgrade, cb) {
   User.findOneAndUpdate(findQuery, updateQuery, {new: true},
     function(err, doc) {
       if (err) {
-        sendMessageError(user.userid);
-        return console.error(err);
+        console.error(err);
+        return cb(err, doc);
       }
       if (!doc) {
-        sendMessageError(user.userid,
-          '😐 Vas muy rápido, no he registrado eso.');
-        return;
+        if (count >= INTENTS) {
+          return cb(new (Errors.DBUpdateError)('Demasiados intentos.'));
+        }
+        setTimeout(function() {
+          User.findOne(
+            {userid: user.userid},
+            function(err, doc) {
+              if (err) {
+                console.error(err);
+                return cb(err, doc);
+              }
+              buyUpgrade(user, upgrade, cb, ++count);
+            }
+          );
+        }, 250 * count + Math.random() * 250);
       }
       cb(doc);
     }
@@ -138,10 +169,9 @@ userSchema.statics.resetUser = function(user, cb) {
   User.findOneAndUpdate({userid: user.userid}, {$set: {clicks: 0}}, {new: true},
     function(err, doc) {
       if (err) {
-        sendMessageError(user.userid);
-        return console.error(err);
+        console.error(err);
       }
-      cb(doc);
+      cb(err, doc);
     }
   );
 };
