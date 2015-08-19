@@ -109,7 +109,7 @@ module.exports = function(router) {
   }, User.findTelegramUser, function(req, res, next) {
 
     if (req.isCommand('click')) {
-      User.incrementClicks(req.user, function(err, user) {
+      req.user.incrementClicks(function(err, user) {
         if (err) {return next(err);}
 
         req.user = user;
