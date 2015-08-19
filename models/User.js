@@ -103,12 +103,14 @@ userSchema.statics.intent = function intent(opts, cb) {
   });
 
   var query = opts.query;
-  if (typeof opts.query === 'function') {query = opts.query(user);}
-  if (query instanceof Error) {return cb(query);}
+  if (typeof opts.query === 'function') {
+    try { query = opts.query(user); } catch (err) { cb(err); }
+  }
 
   var update = opts.update;
-  if (typeof opts.update === 'function') {query = opts.update(user);}
-  if (update instanceof Error) {return cb(update);}
+  if (typeof opts.update === 'function') {
+    try { update = opts.update(user); } catch (err) { cb(err); }
+  }
 
   var User = mongoose.model('User');
   User.findOneAndUpdate(
@@ -171,7 +173,7 @@ userSchema.methods.buyUpgrade = function buyUpgrade(upgrade, cb) {
     },
     update: function(user) {
       if (user.getTotalClicks() < upgrade.getCost(user)) {
-        return new UserStatusError('No tienes suficientes clicks para vender.');
+        throw new UserStatusError('No tienes suficientes clicks.');
       }
       var updateQuery =  {
         $push: {'upgrades.$.buyed': Date.now()},
