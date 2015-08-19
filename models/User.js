@@ -157,7 +157,7 @@ userSchema.methods.incrementClicks = function(cb) {
   }, cb);
 };
 
-userSchema.methos.buyUpgrade = function buyUpgrade(upgrade, cb) {
+userSchema.methods.buyUpgrade = function buyUpgrade(upgrade, cb) {
   var User = mongoose.model('User');
   var user = this.
   User.intent({
