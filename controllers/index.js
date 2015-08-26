@@ -46,18 +46,13 @@ module.exports = function(router) {
       );
     };
 
+    // Verifica que no sea un texto
     if (!req.body.message.text) {
       api.request('sendMessage', {
         chat_id: req.body.message.chat.id,
         text: 'En este momento no puedo manejar este tipo de mensajes.'
       });
       return;
-    }
-    if (req.body.message.chat.title) {
-      api.request('sendMessage', {
-        chat_id: req.body.message.chat.id,
-        text: 'En este momento no soporto chat grupales.'
-      });
     }
 
     // Remove commands
@@ -66,6 +61,7 @@ module.exports = function(router) {
     }
     // Remueve todos los espacios dobles
     req.body.message.text = req.body.message.text.replace(/( ){2}/g, ' ');
+    req.body.message.text = req.body.message.text.replace(/@\w+$/g, '');
 
     req.commands = req.body.message.text.split(' ');
     req.command = (req.commands[0] || '').toLowerCase();
